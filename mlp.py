@@ -33,16 +33,24 @@ def run(training_data, desired_output, w1, b1, w2, b2):
     w2 = w2.values
     b1 = b1.values
     b2 = b2.values
-    for i, row in enumerate(training_data):
-        for j, weights in enumerate(w1):
-            v = np.dot(row, weights) + b1[j]
-            output = fi(v)
-            print(row)
-            print(weights)
-            print(b1[j])
-            print(v)
-            print(output)
-            print("-------------------------")
+
+    first_layer_output = show_to_layer(training_data[0], w1, b1)
+    output = show_to_layer(first_layer_output, w2, b2)[0]
+    print(output)
+
+
+def show_to_layer(inputs, weights, biases):
+    w1 = weights
+    training_data = inputs
+    b1 = biases
+    num_neurons = len(w1)
+    next_layer_input = np.empty(num_neurons)
+    # for i, row in enumerate(training_data):?
+    for j, weights in enumerate(w1):
+        v = np.dot(inputs, weights) + b1[j]
+        output = fi(v)
+        next_layer_input[j] = output
+    return next_layer_input
 
 
 if __name__ == "__main__":
