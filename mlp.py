@@ -4,6 +4,7 @@
 import numpy as np
 import pandas as pd
 import math
+import argparse
 
 
 def init():
@@ -44,12 +45,23 @@ def getInputArgs():
     """
     Get all arguments from the command line
     """
-    ###########################
-    # TEMP - NEED TO REPLACE WITH ACTUAL LOGIC
-    ###############################
-    num_dim = 2
-    num_hidden = 10
-    num_output = 1
+
+    # create the argument parser
+    parser = argparse.ArgumentParser()
+    # the number of features / dimensions
+    parser.add_argument('num_dim', help='The number of features')
+    # the number of nuerons in hidden layer
+    parser.add_argument(
+        'num_hidden', help='Number of neurons in the hidden layer')
+    # the number of output nodes
+    parser.add_argument(
+        'num_output', help='Number of neurons in the output layer')
+    # parse the arguments
+    args = vars(parser.parse_args())
+    # store the directories as variables
+    num_dim, num_hidden, num_output = args["num_dim"], args["num_hidden"], args["num_output"]
+
+    # return
     return num_dim, num_hidden, num_output
 
 
