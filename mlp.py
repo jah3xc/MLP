@@ -34,9 +34,15 @@ def run(training_data, desired_output, w1, b1, w2, b2):
     b1 = b1.values
     b2 = b2.values
 
-    first_layer_output = show_to_layer(training_data[0], w1, b1)
-    output = show_to_layer(first_layer_output, w2, b2)[0]
-    print(output)
+    for i, datapoint in enumerate(training_data):
+        first_layer_output = show_to_layer(datapoint, w1, b1)
+        output = show_to_layer(first_layer_output, w2, b2)[0]
+
+        backpropagate()
+
+
+def backpropagate():
+    pass
 
 
 def show_to_layer(inputs, weights, biases):
