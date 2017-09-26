@@ -1,0 +1,1 @@
+python3 mlp.py 2 10 1 --partA

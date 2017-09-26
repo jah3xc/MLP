@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import math
 import argparse
+import os
 
 
 def init():
@@ -12,16 +13,31 @@ def init():
     Initialize the program by getting all input data
     """
     # parse command line arguments
-    num_dim, num_hidden, num_output = getInputArgs()
+    num_dim, num_hidden, num_output, partA = getInputArgs()
 
-    # read in filenames
-    input_filename = input("Enter train data filename: ")
-    w1_filename = input(
-        "Enter weights filename from input to first hidden layer: ")
-    w2_filename = input("Enter weights from hidden layer to output: ")
-    b1_filename = input(
-        "Enter bias filename from input to first hidden layer: ")
-    b2_filename = input("Enter bias filename from hidden layer to output: ")
+    if not partA:
+        # read in filenames
+        input_filename = input("Enter train data filename: ")
+        w1_filename = input(
+            "Enter weights filename from input to first hidden layer: ")
+        w2_filename = input("Enter weights from hidden layer to output: ")
+        b1_filename = input(
+            "Enter bias filename from input to first hidden layer: ")
+        b2_filename = input(
+            "Enter bias filename from hidden layer to output: ")
+    else:
+        input_filename = "data/cross_data.csv"
+        w1_filename = "data/w1.csv"
+        w2_filename = "data/w2.csv"
+        b1_filename = "data/b1.csv"
+        b2_filename = "data/b2.csv"
+
+    # concat the current directory so we can use absolute paths
+    input_filename = os.path.join(os.getcwd(), input_filename)
+    w1_filename = os.path.join(os.getcwd(), w1_filename)
+    w2_filename = os.path.join(os.getcwd(), w2_filename)
+    b1_filename = os.path.join(os.getcwd(), b1_filename)
+    b2_filename = os.path.join(os.getcwd(), b2_filename)
 
     # try to actually get the data
     try:
@@ -33,9 +49,9 @@ def init():
 
         w2 = pd.read_csv(w2_filename, header=None)
         b2 = pd.read_csv(b2_filename, header=None)
-    except:
-        print("Unable to parse arguments and get data!")
-        init()
+    except Exception as err:
+        print("Error! {}\nUnable to parse arguments and get data!".format(err))
+        return
 
     # run the algorithm
     run(train_data, labels, w1, b1, w2, b2)
@@ -56,13 +72,16 @@ def getInputArgs():
     # the number of output nodes
     parser.add_argument(
         'num_output', help='Number of neurons in the output layer')
+    # default to part a
+    parser.add_argument(
+        '-a', '--partA', action="store_true", help="Run part A")
     # parse the arguments
     args = vars(parser.parse_args())
     # store the directories as variables
     num_dim, num_hidden, num_output = args["num_dim"], args["num_hidden"], args["num_output"]
-
+    partA = True if args["partA"] else False
     # return
-    return num_dim, num_hidden, num_output
+    return num_dim, num_hidden, num_output, partA
 
 
 def fi(v):
