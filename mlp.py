@@ -6,6 +6,7 @@ import pandas as pd
 import math
 import argparse
 import os
+from pprint import pprint
 
 
 def init():
@@ -64,9 +65,24 @@ def init():
     # run the algorithm
     if partA:  # part A only runs a single epoch
         w1, w2, b1, b2 = epoch(train_data, labels, w1, w2, b1, b2)
+        print_results(w1, w2, b1, b2)
     else:
         # run the entire algorithm
         run(train_data, labels, w1, b1, w2, b2)
+
+
+def print_results(w1, w2, b1, b2):
+    """
+    Prints the results given NumPy arrays
+    """
+    print("----------------------\n\t\tW1\n----------------------")
+    pprint(w1.tolist())
+    print("----------------------\n\t\tB1\n----------------------")
+    pprint(b1.tolist(), width=1)
+    print("----------------------\n\t\tW2\n----------------------")
+    pprint(w2.tolist(), width=1)
+    print("----------------------\n\t\tB2\n----------------------")
+    pprint(b2.tolist(), width=1)
 
 
 def getInputArgs():
