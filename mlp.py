@@ -53,8 +53,20 @@ def init():
         print("Error! {}\nUnable to parse arguments and get data!".format(err))
         return
 
+    # convert everythine to NumPy arrays
+    train_data = train_data.values
+    labels = labels.values
+    w1 = w1.values
+    w2 = w2.values
+    b1 = b1.values
+    b2 = b2.values
+
     # run the algorithm
-    run(train_data, labels, w1, b1, w2, b2)
+    if partA:  # part A only runs a single epoch
+        w1, w2, b1, b2 = epoch(train_data, labels, w1, w2, b1, b2)
+    else:
+        # run the entire algorithm
+        run(train_data, labels, w1, b1, w2, b2)
 
 
 def getInputArgs():
@@ -99,15 +111,15 @@ def run(training_data, desired_output, w1, b1, w2, b2):
     """
     Run the algorithm with the given parameters
     """
+    # TODO make this run for some condition like SSE
+    for i in range(100):
+        w1, w2, b1, b2 = epoch(training_data, desired_output, w1, w2, b1, b2)
 
-    # convert everythine to NumPy arrays
-    training_data = training_data.values
-    desired_output = desired_output.values
-    w1 = w1.values
-    w2 = w2.values
-    b1 = b1.values
-    b2 = b2.values
 
+def epoch(training_data, desired_output, w1, w2, b1, b2):
+    """
+    Run a single epoch throught network with given params
+    """
     # run an epoch
     for i, datapoint in enumerate(training_data):
         # show to first hidden layer
@@ -115,14 +127,17 @@ def run(training_data, desired_output, w1, b1, w2, b2):
         # show to output layer
         output = show_to_layer(first_layer_output, w2, b2)[0]
         # backpropoate
-        backpropagate()
+        w1, w2, b1, b2 = backpropagate(
+            output, desired_output[i], w1, w2, b1, b2)
+
+    return w1, w2, b1, b2
 
 
-def backpropagate():
+def backpropagate(output, label, w1, w2, b1, b2):
     """
     Backpropagate the error
     """
-    pass
+    return w1, w2, b1, b2
 
 
 def show_to_layer(inputs, weights, biases):
