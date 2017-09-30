@@ -8,6 +8,10 @@ import argparse
 import os
 from pprint import pprint
 
+# define constants - alpha and beta
+ALPHA = .6
+BETA = .3
+
 
 def init():
     """
@@ -136,6 +140,7 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
     """
     Run a single epoch throught network with given params
     """
+    previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
     # run an epoch
     for i, datapoint in enumerate(training_data):
         # show to first hidden layer
@@ -143,17 +148,59 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         # show to output layer
         output = show_to_layer(first_layer_output, w2, b2)[0]
         # backpropoate
-        w1, w2, b1, b2 = backpropagate(
-            output, desired_output[i], w1, w2, b1, b2)
+        next_w1, next_w2, next_b1, next_b2 = backpropagate(datapoint,
+                                                           output, first_layer_output, desired_output[i], w1, w2, b1, b2, previous_w1, previous_w2)
+
+        previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
+        w1, w2, b1, b2 = next_w1, next_w2, next_b1, next_b2
 
     return w1, w2, b1, b2
 
 
-def backpropagate(output, label, w1, w2, b1, b2):
+def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previous_w1, previous_w2):
     """
     Backpropagate the error
+    w(k+1) = w(k) + B(w(k) - w(k-1)) + A(delta)(output)
     """
+
+    # output layer
+    w2_new = np.empty([len(w2), len(w2[0])])
+    for i, (neuron, prev_neuron) in enumerate(zip(w2, previous_w2)):
+        new_nueron_w = np.empty(len(neuron))
+        for j, (weight, prev_weight) in enumerate(zip(neuron, prev_neuron)):
+            # calc momentum term
+            momentum_term = BETA * (weight - prev_weight)
+            # calc the delta
+            delta = calc_delta_output_layer(
+                output_layer1, neuron, output, label, b2[i])
+            # get the learning term
+            learn_term = ALPHA * delta * output_layer1[i]
+
+            diff = momentum_term + learn_term
+            new_w = weight + diff
+            new_nueron_w[j] = new_w
+        w2_new[i] = new_nueron_w
+    w2 = w2_new
     return w1, w2, b1, b2
+
+
+def calc_delta_output_layer(datapoint, weight, output, label, bias):
+    """
+    Calculate the delta for the output layer
+    """
+    err = label - output
+    v = calc_v(datapoint, weight, bias)
+    prime = fi_prime(v)
+
+    return prime * err
+
+
+def fi_prime(v):
+    """
+    Return the value of the activation function's derivative
+    """
+    f = fi(v)
+    return f * (1 - f)
 
 
 def show_to_layer(inputs, weights, biases):
@@ -172,13 +219,17 @@ def show_to_layer(inputs, weights, biases):
     # go through each neuron in this layer
     for j, weights in enumerate(w1):
         # v = wTx + b
-        v = np.dot(inputs, weights) + b1[j]
+        v = calc_v(inputs, weights, b1[j])
         # output is the activation function
         output = fi(v)
         # put in the array
         next_layer_input[j] = output
     # return the output of this layer
     return next_layer_input
+
+
+def calc_v(inputs, weights, bias):
+    return np.dot(inputs, weights) + bias
 
 
 if __name__ == "__main__":
