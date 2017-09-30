@@ -175,19 +175,26 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
                 output_layer1, neuron, output, label, b2[i])
             # get the learning term
             learn_term = ALPHA * delta * output_layer1[i]
-
+            #  calculate the difference
             diff = momentum_term + learn_term
+            # calculate the new weight
             new_w = weight + diff
+            # store this result
             new_nueron_w[j] = new_w
+        # store the result
         w2_new[i] = new_nueron_w
+    # set this to w2
     w2 = w2_new
+
     return w1, w2, b1, b2
 
 
 def calc_delta_output_layer(datapoint, weight, output, label, bias):
     """
     Calculate the delta for the output layer
+    delta = err * fi_prime(v)
     """
+    # get the components of the delta at the output layer
     err = label - output
     v = calc_v(datapoint, weight, bias)
     prime = fi_prime(v)
@@ -199,7 +206,10 @@ def fi_prime(v):
     """
     Return the value of the activation function's derivative
     """
+
+    # calc fi
     f = fi(v)
+    # fi * 1 - fi
     return f * (1 - f)
 
 
@@ -229,6 +239,10 @@ def show_to_layer(inputs, weights, biases):
 
 
 def calc_v(inputs, weights, bias):
+    """
+    Calculate v, the input vector
+    v = wTp + b
+    """
     return np.dot(inputs, weights) + bias
 
 
