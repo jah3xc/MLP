@@ -190,6 +190,33 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     # set this to w2
     w2 = w2_new
 
+    # hidden layer
+    w1_new = np.empty([len(w1), len(w1[0])])
+    for i, (neuron, prev_neuron) in enumerate(zip(w1, previous_w1)):
+        # holder variable
+        new_nueron_w = np.empty(len(neuron))
+        # calc the delta
+        delta = calc_delta_hidden_layer()
+        # get the learning term
+# --------------> TODO check if this is right
+        learn_term = ALPHA * delta * output_layer1[i]
+
+        # adjust the bias
+        b1[i] = adjust_b(b1[i], delta)
+        for j, (weight, prev_weight) in enumerate(zip(neuron, prev_neuron)):
+            # calc momentum term
+            momentum_term = BETA * (weight - prev_weight)
+            #  calculate the difference
+            diff = momentum_term + learn_term
+            # calculate the new weight
+            new_w = weight + diff
+            # store this result
+            new_nueron_w[j] = new_w
+        # store the result
+        w1_new[i] = new_nueron_w
+    # set this to w2
+    w1 = w1_new
+
     return w1, w2, b1, b2
 
 
@@ -198,7 +225,8 @@ def calc_delta_hidden_layer():
     Calculate the delta for a hidden node
     delta = fi_prime(v) * summation(delta(h+1)w(h+1))
     """
-    pass
+    # TODO write this function
+    return .65
 
 
 def adjust_b(bias, delta):
