@@ -56,7 +56,7 @@ def init():
         b2 = pd.read_csv(b2_filename, header=None)
     except Exception as err:
         print("Error! {}\nUnable to parse arguments and get data!".format(err))
-        return
+        exit(1)
 
     # convert everythine to NumPy arrays
     train_data = train_data.values
@@ -72,7 +72,7 @@ def init():
         print_results(w1, w2, b1, b2)
     else:
         # run the entire algorithm
-        run(train_data, labels, w1, b1, w2, b2)
+        run(train_data, labels, w1, w2, b1, b2)
 
 
 def print_results(w1, w2, b1, b2):
@@ -80,13 +80,13 @@ def print_results(w1, w2, b1, b2):
     Prints the results given NumPy arrays
     """
     print("----------------------\n\t\tW1\n----------------------")
-    pprint(w1.tolist())
+    pprint(np.around(w1, decimals=4).tolist())
     print("----------------------\n\t\tB1\n----------------------")
-    pprint(b1.tolist(), width=1)
+    pprint(np.around(w2, decimals=4).tolist(), width=1)
     print("----------------------\n\t\tW2\n----------------------")
-    pprint(w2.tolist(), width=1)
+    pprint(np.around(b1, decimals=4).tolist(), width=1)
     print("----------------------\n\t\tB2\n----------------------")
-    pprint(b2.tolist(), width=1)
+    pprint(np.around(b2, decimals=4).tolist(), width=1)
 
 
 def getInputArgs():
@@ -127,7 +127,7 @@ def fi(v):
     return val
 
 
-def run(training_data, desired_output, w1, b1, w2, b2):
+def run(training_data, desired_output, w1, w2, b1, b2):
     """
     Run the algorithm with the given parameters
     """
