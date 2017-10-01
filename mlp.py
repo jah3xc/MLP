@@ -196,7 +196,8 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
         # holder variable
         new_nueron_w = np.empty(len(neuron))
         # calc the delta
-        delta = calc_delta_hidden_layer()
+        delta = calc_delta_hidden_layer(
+            datapoint, neuron, b1[i], w2, b2, output, label, output_layer1)
         # get the learning term
 # --------------> TODO check if this is right
         learn_term = ALPHA * delta * output_layer1[i]
@@ -220,13 +221,23 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     return w1, w2, b1, b2
 
 
-def calc_delta_hidden_layer():
+def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, output_layer1):
     """
     Calculate the delta for a hidden node
     delta = fi_prime(v) * summation(delta(h+1)w(h+1))
     """
-    # TODO write this function
-    return .65
+    # calc fi prime of v
+    fiP = fi_prime(calc_v(datapoint, weight, bias))
+    # need to find delta of all forward connected neurons
+    summation = 0
+    for i, neuron in enumerate(w2):
+        # calc the delta
+        delta = calc_delta_output_layer(
+            output_layer1, neuron, output, label, b2[i])
+
+        summation = summation + (weight[i] * delta)
+
+    return fiP * summation
 
 
 def adjust_b(bias, delta):
