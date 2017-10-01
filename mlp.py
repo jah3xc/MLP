@@ -147,6 +147,9 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         first_layer_output = show_to_layer(datapoint, w1, b1)
         # show to output layer
         output = show_to_layer(first_layer_output, w2, b2)
+        # print the error energy
+        print("Error Energy for {}: {:.4f}".format(
+            datapoint, calc_average_error_energy(output, desired_output[i])[0]))
         # backpropoate
         next_w1, next_w2, next_b1, next_b2 = backpropagate(datapoint,
                                                            output, first_layer_output, desired_output[i], w1, w2, b1, b2, previous_w1, previous_w2)
@@ -221,6 +224,14 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     return w1, w2, b1, b2
 
 
+def calc_average_error_energy(output, label):
+    er = 0
+    for o, l in zip(output, label):
+        nueron_error = label - output
+        er += nueron_error**2
+    return er / 2
+
+
 def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, output_layer1):
     """
     Calculate the delta for a hidden node
@@ -274,7 +285,7 @@ def fi_prime(v):
 
 def show_to_layer(inputs, weights, biases):
     """
-    Take in the input, weights, and bias and show an input 
+    Take in the input, weights, and bias and show an input
     to the layer specified by the weights and biases
     """
 
