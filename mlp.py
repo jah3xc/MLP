@@ -9,7 +9,7 @@ import os
 from pprint import pprint
 
 # define constants - alpha and beta
-ALPHA = .6
+ALPHA = .7
 BETA = .3
 
 
@@ -166,15 +166,19 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     # output layer
     w2_new = np.empty([len(w2), len(w2[0])])
     for i, (neuron, prev_neuron) in enumerate(zip(w2, previous_w2)):
+        # holder variable
         new_nueron_w = np.empty(len(neuron))
+        # calc the delta
+        delta = calc_delta_output_layer(
+            output_layer1, neuron, output, label, b2[i])
+        # get the learning term
+        learn_term = ALPHA * delta * output_layer1[i]
+
+        # adjust the bias
+        b2[i] = adjust_b(b2[i], delta)
         for j, (weight, prev_weight) in enumerate(zip(neuron, prev_neuron)):
             # calc momentum term
             momentum_term = BETA * (weight - prev_weight)
-            # calc the delta
-            delta = calc_delta_output_layer(
-                output_layer1, neuron, output, label, b2[i])
-            # get the learning term
-            learn_term = ALPHA * delta * output_layer1[i]
             #  calculate the difference
             diff = momentum_term + learn_term
             # calculate the new weight
@@ -187,6 +191,22 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     w2 = w2_new
 
     return w1, w2, b1, b2
+
+
+def calc_delta_hidden_layer():
+    """
+    Calculate the delta for a hidden node
+    delta = fi_prime(v) * summation(delta(h+1)w(h+1))
+    """
+    pass
+
+
+def adjust_b(bias, delta):
+    """
+    Adjust the bias
+    bias += ALPHA * 1 * delta
+    """
+    return bias + (ALPHA * delta)
 
 
 def calc_delta_output_layer(datapoint, weight, output, label, bias):
@@ -228,7 +248,7 @@ def show_to_layer(inputs, weights, biases):
     next_layer_input = np.empty(num_neurons)
     # go through each neuron in this layer
     for j, weights in enumerate(w1):
-        # v = wTx + b
+            # v = wTx + b
         v = calc_v(inputs, weights, b1[j])
         # output is the activation function
         output = fi(v)
