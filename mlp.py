@@ -146,7 +146,7 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         # show to first hidden layer
         first_layer_output = show_to_layer(datapoint, w1, b1)
         # show to output layer
-        output = show_to_layer(first_layer_output, w2, b2)[0]
+        output = show_to_layer(first_layer_output, w2, b2)
         # backpropoate
         next_w1, next_w2, next_b1, next_b2 = backpropagate(datapoint,
                                                            output, first_layer_output, desired_output[i], w1, w2, b1, b2, previous_w1, previous_w2)
