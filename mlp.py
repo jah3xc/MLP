@@ -68,8 +68,12 @@ def init():
 
     # run the algorithm
     if partA:  # part A only runs a single epoch
-        w1, w2, b1, b2 = epoch(train_data, labels, w1, w2, b1, b2)
+        w1, w2, b1, b2, avg_error_energy = epoch(
+            train_data, labels, w1, w2, b1, b2)
         print_results(w1, w2, b1, b2)
+        print(
+            "----------------------\n\t\tERROR\n----------------------\nAverage Error Energy: {:10.4f}".format(avg_error_energy[0]))
+
     else:
         # run the entire algorithm
         run(train_data, labels, w1, w2, b1, b2)
@@ -132,14 +136,18 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     Run the algorithm with the given parameters
     """
     # TODO make this run for some condition like SSE
-    for i in range(100):
-        w1, w2, b1, b2 = epoch(training_data, desired_output, w1, w2, b1, b2)
+    while True:
+        # run an epoch
+        w1, w2, b1, b2, avg_error = epoch(
+            training_data, desired_output, w1, w2, b1, b2)
 
 
 def epoch(training_data, desired_output, w1, w2, b1, b2):
     """
     Run a single epoch throught network with given params
     """
+
+    avg_error = 0
     previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
     # run an epoch
     for i, datapoint in enumerate(training_data):
@@ -147,9 +155,9 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         first_layer_output = show_to_layer(datapoint, w1, b1)
         # show to output layer
         output = show_to_layer(first_layer_output, w2, b2)
-        # print the error energy
-        print("Error Energy for {}: {:.4f}".format(
-            datapoint, calc_average_error_energy(output, desired_output[i])[0]))
+        # error
+        er = (desired_output[i] - output)**2
+        avg_error += er
         # backpropoate
         next_w1, next_w2, next_b1, next_b2 = backpropagate(datapoint,
                                                            output, first_layer_output, desired_output[i], w1, w2, b1, b2, previous_w1, previous_w2)
@@ -157,7 +165,8 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
         w1, w2, b1, b2 = next_w1, next_w2, next_b1, next_b2
 
-    return w1, w2, b1, b2
+    avg_error = avg_error / (2 * len(training_data))
+    return w1, w2, b1, b2, avg_error
 
 
 def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previous_w1, previous_w2):
