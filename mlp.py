@@ -139,6 +139,7 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     Run the algorithm with the given parameters
     """
     i = 0
+    prev_error = 1
     while True:
         # run an epoch
         w1, w2, b1, b2, avg_error = epoch(
@@ -147,7 +148,15 @@ def run(training_data, desired_output, w1, w2, b1, b2):
         if avg_error < TERMINATION_THRESHOLD:
             break
         i += 1
-        print("Epoch Number: {}\t Avg Error: {}".format(i, avg_error))
+        avg_error = avg_error[0]
+        diff = prev_error - avg_error
+        diff = diff / prev_error * 100
+        diff = diff if diff >= 0 else -diff
+        print("Epoch Number: {:6d} \t{:>15} {:.7f}\tPercent Change: {:.4f}".format(
+            i, "Average Error: ", avg_error, diff
+
+        ))
+        prev_error = avg_error
 
     print_results(w1, w2, b1, b2, avg_error)
 
