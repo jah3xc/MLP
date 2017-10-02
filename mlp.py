@@ -8,9 +8,10 @@ import argparse
 import os
 from pprint import pprint
 
-# define constants - alpha and beta
+# define constants
 ALPHA = .7
 BETA = .3
+TERMINATION_THRESHOLD = .001
 
 
 def init():
@@ -68,18 +69,18 @@ def init():
 
     # run the algorithm
     if partA:  # part A only runs a single epoch
-        w1, w2, b1, b2, avg_error_energy = epoch(
+        w1_new, w2_new, b1_new, b2_new, avg_error_energy = epoch(
             train_data, labels, w1, w2, b1, b2)
-        print_results(w1, w2, b1, b2)
-        print(
-            "----------------------\n\t\tERROR\n----------------------\nAverage Error Energy: {:10.4f}".format(avg_error_energy[0]))
+        print_results(w1_new, w2_new, b1_new, b2_new, avg_error_energy)
 
+        # run the entire algorithm for the next part of part A
+        run(train_data, labels, w1, w2, b1, b2)
     else:
         # run the entire algorithm
         run(train_data, labels, w1, w2, b1, b2)
 
 
-def print_results(w1, w2, b1, b2):
+def print_results(w1, w2, b1, b2, avg_error_energy):
     """
     Prints the results given NumPy arrays
     """
@@ -91,6 +92,8 @@ def print_results(w1, w2, b1, b2):
     pprint(np.around(b1, decimals=4).tolist(), width=1)
     print("----------------------\n\t\tB2\n----------------------")
     pprint(np.around(b2, decimals=4).tolist(), width=1)
+    print(
+        "----------------------\n\t\tERROR\n----------------------\nAverage Error Energy: {:10.4f}".format(avg_error_energy[0]))
 
 
 def getInputArgs():
@@ -135,11 +138,18 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     """
     Run the algorithm with the given parameters
     """
-    # TODO make this run for some condition like SSE
+    i = 0
     while True:
         # run an epoch
         w1, w2, b1, b2, avg_error = epoch(
             training_data, desired_output, w1, w2, b1, b2)
+
+        if avg_error < TERMINATION_THRESHOLD:
+            break
+        i += 1
+        print("Epoch Number: {}\t Avg Error: {}".format(i, avg_error))
+
+    print_results(w1, w2, b1, b2, avg_error)
 
 
 def epoch(training_data, desired_output, w1, w2, b1, b2):
