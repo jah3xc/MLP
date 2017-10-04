@@ -166,7 +166,7 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
     Run a single epoch throught network with given params
     """
 
-    avg_error = 0
+    avg_error = 0.
     previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
     # run an epoch
     for i, datapoint in enumerate(training_data):
@@ -184,7 +184,7 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
         w1, w2, b1, b2 = next_w1, next_w2, next_b1, next_b2
 
-    avg_error = avg_error / (2 * len(training_data))
+    avg_error = avg_error / (2. * len(training_data))
     return w1, w2, b1, b2, avg_error
 
 
@@ -230,16 +230,16 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
         delta = calc_delta_hidden_layer(
             datapoint, neuron, b1[i], w2, b2, output, label, output_layer1)
         # get the learning term
-# --------------> TODO check if this is right
-        learn_term = ALPHA * delta * output_layer1[i]
+        learn_term = ALPHA * delta
 
         # adjust the bias
         b1[i] = adjust_b(b1[i], delta)
         for j, (weight, prev_weight) in enumerate(zip(neuron, prev_neuron)):
             # calc momentum term
+            this_learn_term = learn_term * datapoint[j]
             momentum_term = BETA * (weight - prev_weight)
             #  calculate the difference
-            diff = momentum_term + learn_term
+            diff = momentum_term + this_learn_term
             # calculate the new weight
             new_w = weight + diff
             # store this result
@@ -250,14 +250,6 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     w1 = w1_new
 
     return w1, w2, b1, b2
-
-
-def calc_average_error_energy(output, label):
-    er = 0
-    for o, l in zip(output, label):
-        nueron_error = label - output
-        er += nueron_error**2
-    return er / 2
 
 
 def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, output_layer1):
