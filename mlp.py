@@ -67,18 +67,25 @@ def init():
     b1 = b1.values
     b2 = b2.values
 
+    # put the bias into weights
+    w1, w2 = insert_bias(w1, w2, b1, b2)
+
     # run the algorithm
     if partA:  # part A only runs a single epoch
-        w1_new, w2_new, b1_new, b2_new, avg_error_energy = epoch(
-            train_data, labels, w1, w2, b1, b2)
+        w1_new, w2_new, avg_error_energy = epoch(
+            train_data, labels, w1, w2)
+        w1_new, w2_new, b1_new, b2_new = extract_bias(w1, w2)
+
         print_results(w1_new, w2_new, b1_new, b2_new, avg_error_energy)
 
         # run the entire algorithm for the next part of part A
-        run(train_data, labels, w1, w2, b1, b2)
+        run(train_data, labels, w1, w2)
     else:
         # run the entire algorithm
-        run(train_data, labels, w1, w2, b1, b2)
+        run(train_data, labels, w1, w2)
 
+def extract_bias(w1, w2):
+    pass
 
 def print_results(w1, w2, b1, b2, avg_error_energy):
     """
@@ -152,7 +159,7 @@ def insert_bias(w1, w2, b1, b2, training_data):
     
     return w1_new, w2_new
 
-def run(training_data, desired_output, w1, w2, b1, b2):
+def run(training_data, desired_output, w1, w2):
     """
     Run the algorithm with the given parameters
     """
@@ -160,8 +167,8 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     prev_error = 1
     while True:
         # run an epoch
-        w1, w2, b1, b2, avg_error = epoch(
-            training_data, desired_output, w1, w2, b1, b2)
+        w1, w2, avg_error = epoch(
+            training_data, desired_output, w1, w2)
 
         if avg_error < TERMINATION_THRESHOLD:
             break
@@ -175,35 +182,35 @@ def run(training_data, desired_output, w1, w2, b1, b2):
 
         ))
         prev_error = avg_error
-
+    w1, w2, b1, b2 = extract_bias(w1, w2)
     print_results(w1, w2, b1, b2, avg_error)
 
 
-def epoch(training_data, desired_output, w1, w2, b1, b2):
+def epoch(training_data, desired_output, w1, w2):
     """
     Run a single epoch throught network with given params
     """
 
     avg_error = 0.
-    previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
+    previous_w1, previous_w2 = w1, w2
     # run an epoch
     for i, datapoint in enumerate(training_data):
         # show to first hidden layer
-        first_layer_output = show_to_layer(datapoint, w1, b1)
+        first_layer_output = show_to_layer(datapoint, w1)
         # show to output layer
-        output = show_to_layer(first_layer_output, w2, b2)
+        output = show_to_layer(first_layer_output, w2)
         # error
         er = (desired_output[i] - output)**2
         avg_error += er
         # backpropoate
-        next_w1, next_w2, next_b1, next_b2 = backpropagate(datapoint,
-                                                           output, first_layer_output, desired_output[i], w1, w2, b1, b2, previous_w1, previous_w2)
+        next_w1, next_w2 = backpropagate(datapoint,
+                                                           output, first_layer_output, desired_output[i], w1, w2, previous_w1, previous_w2)
 
-        previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
-        w1, w2, b1, b2 = next_w1, next_w2, next_b1, next_b2
+        previous_w1, previous_w2 = w1, w2
+        w1, w2 = next_w1, next_w2
 
     avg_error = avg_error / (2. * len(training_data))
-    return w1, w2, b1, b2, avg_error
+    return w1, w2, avg_error
 
 
 def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previous_w1, previous_w2):
@@ -223,8 +230,6 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
         # get the learning term
         learn_term = ALPHA * delta * output_layer1[i]
 
-        # adjust the bias
-        b2[i] = adjust_b(b2[i], delta)
         for j, (weight, prev_weight) in enumerate(zip(neuron, prev_neuron)):
             # calc momentum term
             momentum_term = BETA * (weight - prev_weight)
@@ -246,12 +251,10 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
         new_nueron_w = np.empty(len(neuron))
         # calc the delta
         delta = calc_delta_hidden_layer(
-            datapoint, neuron, b1[i], w2, b2, output, label, output_layer1)
+            datapoint, neuron, w2, output, label, output_layer1)
         # get the learning term
         learn_term = ALPHA * delta
 
-        # adjust the bias
-        b1[i] = adjust_b(b1[i], delta)
         for j, (weight, prev_weight) in enumerate(zip(neuron, prev_neuron)):
             # calc momentum term
             this_learn_term = learn_term * datapoint[j]
@@ -276,25 +279,17 @@ def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, outp
     delta = fi_prime(v) * summation(delta(h+1)w(h+1))
     """
     # calc fi prime of v
-    fiP = fi_prime(calc_v(datapoint, weight, bias))
+    fiP = fi_prime(calc_v(datapoint, weight))
     # need to find delta of all forward connected neurons
     summation = 0
     for i, neuron in enumerate(w2):
         # calc the delta
         delta = calc_delta_output_layer(
-            output_layer1, neuron, output, label, b2[i])
+            output_layer1, neuron, output, label)
 
         summation = summation + (weight[i] * delta)
 
     return fiP * summation
-
-
-def adjust_b(bias, delta):
-    """
-    Adjust the bias
-    bias += ALPHA * 1 * delta
-    """
-    return bias + (ALPHA * delta)
 
 
 def calc_delta_output_layer(datapoint, weight, output, label, bias):
@@ -304,7 +299,7 @@ def calc_delta_output_layer(datapoint, weight, output, label, bias):
     """
     # get the components of the delta at the output layer
     err = label - output
-    v = calc_v(datapoint, weight, bias)
+    v = calc_v(datapoint, weight)
     prime = fi_prime(v)
 
     return prime * err
@@ -330,14 +325,14 @@ def show_to_layer(inputs, weights, biases):
     # rename inputs
     w1 = weights
     training_data = inputs
-    b1 = biases
+    
     num_neurons = len(w1)
     # create the array to hold the output of this layer
     next_layer_input = np.empty(num_neurons)
     # go through each neuron in this layer
     for j, weights in enumerate(w1):
             # v = wTx + b
-        v = calc_v(inputs, weights, b1[j])
+        v = calc_v(inputs, weights)
         # output is the activation function
         output = fi(v)
         # put in the array
@@ -346,7 +341,7 @@ def show_to_layer(inputs, weights, biases):
     return next_layer_input
 
 
-def calc_v(inputs, weights, bias):
+def calc_v(inputs, weights, bias=0):
     """
     Calculate v, the input vector
     v = wTp + b
