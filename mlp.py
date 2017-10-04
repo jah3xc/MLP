@@ -270,7 +270,7 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     # set this to w2
     w1 = w1_new
 
-    return w1, w2, b1, b2
+    return w1, w2
 
 
 def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, output_layer1):
