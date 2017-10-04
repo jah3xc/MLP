@@ -133,6 +133,24 @@ def fi(v):
     val = 1 / denom
     return val
 
+def insert_bias(w1, w2, b1, b2, training_data):
+    """
+    Insert the bias into the bias vectors and the training data
+    """
+    w1_new = w1
+    w2_new = w2
+    if len(w1) != len(b1) or len(w2) != len(b2):
+        print("Invalid sizes")
+        exit(1)
+    
+    for i, (w, b) in enumerate(zip(w1, b1)):
+        w1_new[i] = np.insert(w, 0, b)
+    
+
+    for i, (w, b) in enumerate(zip(w2, b2)):
+        w2_new[i] = np.insert(w, 0, b)
+    
+    return w1_new, w2_new
 
 def run(training_data, desired_output, w1, w2, b1, b2):
     """
