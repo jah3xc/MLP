@@ -68,7 +68,7 @@ def init():
     b2 = b2.values
 
     # put the bias into weights
-    w1, w2 = insert_bias(w1, w2, b1, b2)
+    w1, w2 = insert_bias(w1, w2, b1, b2, train_data)
 
     # run the algorithm
     if partA:  # part A only runs a single epoch
