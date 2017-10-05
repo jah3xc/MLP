@@ -68,7 +68,7 @@ def init():
     b2 = b2.values
 
     # put the bias into weights
-    w1, w2 = insert_bias(w1, w2, b1, b2, train_data)
+    w1, w2, train_data = insert_bias(w1, w2, b1, b2, train_data)
 
     # run the algorithm
     if partA:  # part A only runs a single epoch
@@ -144,20 +144,38 @@ def insert_bias(w1, w2, b1, b2, training_data):
     """
     Insert the bias into the bias vectors and the training data
     """
-    w1_new = w1
-    w2_new = w2
+    # create empty numpy arrays to hold new weight vectors
+    w1_new = np.empty([len(w1), len(w1[0])+1])
+    w2_new = np.empty([len(w2), len(w2[0])+1])
+
+    # make sure they are valid sizes
     if len(w1) != len(b1) or len(w2) != len(b2):
         print("Invalid sizes")
         exit(1)
     
-    for i, (w, b) in enumerate(zip(w1, b1)):
-        w1_new[i] = np.insert(w, 0, b)
-    
+    # add b1 to w1
+    for i in range(len(w1_new)):
+        w = w1[i]
+        for j in range(len(w1_new[0])):
+            # put bias in th first position
+            w1_new[i][j] = b1[i] if j == 0 else w[j-1]
 
-    for i, (w, b) in enumerate(zip(w2, b2)):
-        w2_new[i] = np.insert(w, 0, b)
-    
-    return w1_new, w2_new
+    # add b2 to w2
+    for i in range(len(w2_new)):
+        w = w2[i]
+        for j in range(len(w2_new[0])):
+            w2_new[i][j] = b2[i] if j == 0 else w[j-1]
+
+    # inject a 1 into all datapoints
+    training_data_new = np.empty([len(training_data), len(training_data[0])+1])
+    for i in range(len(training_data_new)):
+        t = training_data[i]
+        for j in range(len(training_data_new[0])):
+            training_data_new[i][j] = 1 if j == 0 else t[j-1]
+        
+        
+    # return w with injected weights
+    return w1_new, w2_new, training_data_new
 
 def run(training_data, desired_output, w1, w2):
     """
@@ -316,7 +334,7 @@ def fi_prime(v):
     return f * (1 - f)
 
 
-def show_to_layer(inputs, weights, biases):
+def show_to_layer(inputs, weights):
     """
     Take in the input, weights, and bias and show an input
     to the layer specified by the weights and biases
