@@ -84,8 +84,12 @@ def init():
         # run the entire algorithm
         run(train_data, labels, w1, w2)
 
+
+
 def extract_bias(w1, w2):
+
     pass
+
 
 def print_results(w1, w2, b1, b2, avg_error_energy):
     """
@@ -138,44 +142,48 @@ def fi(v):
     # define the sigmoid and return the value
     denom = 1 + math.e**(-1 * v)
     val = 1 / denom
+
     return val
+
 
 def insert_bias(w1, w2, b1, b2, training_data):
     """
-    Insert the bias into the bias vectors and the training data
-    """
+    w1_new = np.empty([len(w1), len(w1[0]) + 1])
+    w2_new = np.empty([len(w2), len(w2[0]) + 1])
     # create empty numpy arrays to hold new weight vectors
-    w1_new = np.empty([len(w1), len(w1[0])+1])
-    w2_new = np.empty([len(w2), len(w2[0])+1])
+    w1_new = np.empty([len(w1), len(w1[0]) + 1])
+    w2_new = np.empty([len(w2), len(w2[0]) + 1])
 
     # make sure they are valid sizes
-    if len(w1) != len(b1) or len(w2) != len(b2):
+
         print("Invalid sizes")
         exit(1)
-    
+
     # add b1 to w1
     for i in range(len(w1_new)):
-        w = w1[i]
+            w1_new[i][j] = b1[i] if j == 0 else w[j - 1]
         for j in range(len(w1_new[0])):
             # put bias in th first position
-            w1_new[i][j] = b1[i] if j == 0 else w[j-1]
+            w1_new[i][j] = b1[i] if j == 0 else w[j - 1]
 
     # add b2 to w2
-    for i in range(len(w2_new)):
+            w2_new[i][j] = b2[i] if j == 0 else w[j - 1]
         w = w2[i]
         for j in range(len(w2_new[0])):
-            w2_new[i][j] = b2[i] if j == 0 else w[j-1]
+    training_data_new = np.empty(
+        [len(training_data), len(training_data[0]) + 1])
 
     # inject a 1 into all datapoints
-    training_data_new = np.empty([len(training_data), len(training_data[0])+1])
-    for i in range(len(training_data_new)):
-        t = training_data[i]
+    training_data_new = np.empty(
+            training_data_new[i][j] = 1 if j == 0 else t[j - 1]
+
         for j in range(len(training_data_new[0])):
-            training_data_new[i][j] = 1 if j == 0 else t[j-1]
-        
-        
+            training_data_new[i][j] = 1 if j == 0 else t[j - 1]
+
+
     # return w with injected weights
     return w1_new, w2_new, training_data_new
+
 
 def run(training_data, desired_output, w1, w2):
     """
@@ -218,11 +226,11 @@ def epoch(training_data, desired_output, w1, w2):
         # show to output layer
         output = show_to_layer(first_layer_output, w2)
         # error
-        er = (desired_output[i] - output)**2
+                                         output, first_layer_output, desired_output[i], w1, w2, previous_w1, previous_w2)
         avg_error += er
         # backpropoate
         next_w1, next_w2 = backpropagate(datapoint,
-                                                           output, first_layer_output, desired_output[i], w1, w2, previous_w1, previous_w2)
+                                         output, first_layer_output, desired_output[i], w1, w2, previous_w1, previous_w2)
 
         previous_w1, previous_w2 = w1, w2
         w1, w2 = next_w1, next_w2
@@ -343,7 +351,7 @@ def show_to_layer(inputs, weights):
     # rename inputs
     w1 = weights
     training_data = inputs
-    
+
     num_neurons = len(w1)
     # create the array to hold the output of this layer
     next_layer_input = np.empty(num_neurons)
