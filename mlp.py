@@ -235,7 +235,7 @@ def epoch(training_data, desired_output, w1, w2):
     return w1, w2, avg_error
 
 
-def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previous_w1, previous_w2):
+def backpropagate(datapoint, output, output_layer1, label, w1, w2, previous_w1, previous_w2):
     """
     Backpropagate the error
     w(k+1) = w(k) + B(w(k) - w(k-1)) + A(delta)(output)
@@ -248,7 +248,7 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
         new_nueron_w = np.empty(len(neuron))
         # calc the delta
         delta = calc_delta_output_layer(
-            output_layer1, neuron, output, label, b2[i])
+            output_layer1, neuron, output, label)
         # get the learning term
         learn_term = ALPHA * delta * output_layer1[i]
 
@@ -295,7 +295,7 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     return w1, w2
 
 
-def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, output_layer1):
+def calc_delta_hidden_layer(datapoint, weight, bias, w2, output, label, output_layer1):
     """
     Calculate the delta for a hidden node
     delta = fi_prime(v) * summation(delta(h+1)w(h+1))
@@ -314,7 +314,7 @@ def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, outp
     return fiP * summation
 
 
-def calc_delta_output_layer(datapoint, weight, output, label, bias):
+def calc_delta_output_layer(datapoint, weight, output, label):
     """
     Calculate the delta for the output layer
     delta = err * fi_prime(v)
@@ -348,9 +348,10 @@ def show_to_layer(inputs, weights):
     w1 = weights
     training_data = inputs
 
-    num_neurons = len(w1)
+    num_neurons = len(w1) + 1
     # create the array to hold the output of this layer
     next_layer_input = np.empty(num_neurons)
+    next_layer_input[0] = 1  # adjust for bias
     # go through each neuron in this layer
     for j, weights in enumerate(w1):
             # v = wTx + b
@@ -358,7 +359,7 @@ def show_to_layer(inputs, weights):
         # output is the activation function
         output = fi(v)
         # put in the array
-        next_layer_input[j] = output
+        next_layer_input[j + 1] = output
     # return the output of this layer
     return next_layer_input
 
