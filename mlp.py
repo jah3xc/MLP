@@ -64,8 +64,8 @@ def init():
     labels = labels.values
     w1 = w1.values
     w2 = w2.values
-    b1 = b1.values
-    b2 = b2.values
+    b1 = b1.values.flatten()
+    b2 = b2.values.flatten()
 
     # run the algorithm
     if partA:  # part A only runs a single epoch
@@ -195,13 +195,17 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     """
 
     # output layer
+    output_deltas = np.empty(len(w2))
     w2_new = np.empty([len(w2), len(w2[0])])
     for i, (neuron, prev_neuron) in enumerate(zip(w2, previous_w2)):
         # holder variable
         new_nueron_w = np.empty(len(neuron))
         # calc the delta
-        delta = calc_delta_output_layer(
-            output_layer1, neuron, output, label, b2[i])
+        v = calc_v(output_layer1, neuron, b2[i])
+        prime = fi_prime(v)
+        e = label[i] - output[i]
+        delta = prime * e
+        output_deltas[i] = delta
         # get the learning term
         learn_term = ALPHA * delta * output_layer1[i]
 
@@ -226,20 +230,22 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     for i, (neuron, prev_neuron) in enumerate(zip(w1, previous_w1)):
         # holder variable
         new_nueron_w = np.empty(len(neuron))
-        # calc the delta
-        delta = calc_delta_hidden_layer(
-            datapoint, neuron, b1[i], w2, b2, output, label, output_layer1)
-        # get the learning term
-        learn_term = ALPHA * delta
-
+        # calc the delta = fiprime * summation(delta_output * w)
+        v = calc_v(datapoint, neuron, b1[i])
+        prime = fi_prime(v)
+        summation = 0
+        for d in output_deltas:
+            summation += w2[i] * d
+        delta = prime * summation
         # adjust the bias
         b1[i] = adjust_b(b1[i], delta)
         for j, (weight, prev_weight) in enumerate(zip(neuron, prev_neuron)):
             # calc momentum term
-            this_learn_term = learn_term * datapoint[j]
             momentum_term = BETA * (weight - prev_weight)
+            # calc learn term
+            learn_term = ALPHA * delta * datapoint[j]
             #  calculate the difference
-            diff = momentum_term + this_learn_term
+            diff = momentum_term + learn_term
             # calculate the new weight
             new_w = weight + diff
             # store this result
