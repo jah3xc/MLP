@@ -234,8 +234,8 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
         v = calc_v(datapoint, neuron, b1[i])
         prime = fi_prime(v)
         summation = 0
-        for d in output_deltas:
-            summation += w2[i] * d
+        for j, d in enumerate(output_deltas):
+            summation += d * w2[j][i]
         delta = prime * summation
         # adjust the bias
         b1[i] = adjust_b(b1[i], delta)
