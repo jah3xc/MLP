@@ -1,17 +1,14 @@
 # Multilayer Perceptron algorithm
 # implemented using backpropagation
 # @author James Hurt, 2017
-import numpy as np
 import pandas as pd
-import math
 import argparse
 import os
 from pprint import pprint
-
-# define constants
-ALPHA = .7
-BETA = .3
-TERMINATION_THRESHOLD = .001
+# my files
+from graph import *
+from calculations import *
+from constants import *
 
 
 def init():
@@ -74,7 +71,11 @@ def init():
         print_results(w1_new, w2_new, b1_new, b2_new, avg_error_energy)
 
         # run the entire algorithm for the next part of part A
-        run(train_data, labels, w1, w2, b1, b2)
+        error_per_epoch = run(train_data, labels, w1, w2, b1, b2)
+
+        graph_error_per_epoch(error_per_epoch)
+        graph_data_with_solution(train_data, labels, w1, w2, b1, b2)
+
     else:
         # run the entire algorithm
         run(train_data, labels, w1, w2, b1, b2)
@@ -93,7 +94,8 @@ def print_results(w1, w2, b1, b2, avg_error_energy):
     print("----------------------\n\t\tB2\n----------------------")
     pprint(np.around(b2, decimals=4).tolist(), width=1)
     print(
-        "----------------------\n\t\tERROR\n----------------------\nAverage Error Energy: {:10.4f}".format(avg_error_energy[0]))
+        "----------------------\n\t\tERROR\n----------------------\nAverage Error Energy: {:10.4f}".format(
+            avg_error_energy[0]))
 
 
 def getInputArgs():
@@ -123,21 +125,12 @@ def getInputArgs():
     return num_dim, num_hidden, num_output, partA
 
 
-def fi(v):
-    """
-    Define the activation function and return fi of v
-    """
-
-    # define the sigmoid and return the value
-    denom = 1 + math.e**(-1 * v)
-    val = 1 / denom
-    return val
-
 
 def run(training_data, desired_output, w1, w2, b1, b2):
     """
     Run the algorithm with the given parameters
     """
+    error = []
     i = 0
     prev_error = 1
     while True:
@@ -149,6 +142,7 @@ def run(training_data, desired_output, w1, w2, b1, b2):
             break
         i += 1
         avg_error = avg_error[0]
+        error.append(avg_error)
         diff = prev_error - avg_error
         diff = diff / prev_error * 100
         diff = diff if diff >= 0 else -diff
@@ -159,6 +153,7 @@ def run(training_data, desired_output, w1, w2, b1, b2):
         prev_error = avg_error
 
     print_results(w1, w2, b1, b2, avg_error)
+    return error
 
 
 def epoch(training_data, desired_output, w1, w2, b1, b2):
@@ -175,11 +170,12 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         # show to output layer
         output = show_to_layer(first_layer_output, w2, b2)
         # error
-        er = (desired_output[i] - output)**2
+        er = (desired_output[i] - output) ** 2
         avg_error += er
         # backpropoate
         next_w1, next_w2, next_b1, next_b2 = backpropagate(datapoint,
-                                                           output, first_layer_output, desired_output[i], w1, w2, b1, b2, previous_w1, previous_w2)
+                                                           output, first_layer_output, desired_output[i], w1, w2, b1,
+                                                           b2, previous_w1, previous_w2)
 
         previous_w1, previous_w2, previous_b1, previous_b2 = w1, w2, b1, b2
         w1, w2, b1, b2 = next_w1, next_w2, next_b1, next_b2
@@ -258,55 +254,8 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     return w1, w2, b1, b2
 
 
-def calc_delta_hidden_layer(datapoint, weight, bias, w2, b2, output, label, output_layer1):
-    """
-    Calculate the delta for a hidden node
-    delta = fi_prime(v) * summation(delta(h+1)w(h+1))
-    """
-    # calc fi prime of v
-    fiP = fi_prime(calc_v(datapoint, weight, bias))
-    # need to find delta of all forward connected neurons
-    summation = 0
-    for i, neuron in enumerate(w2):
-        # calc the delta
-        delta = calc_delta_output_layer(
-            output_layer1, neuron, output, label, b2[i])
-
-        summation = summation + (weight[i] * delta)
-
-    return fiP * summation
 
 
-def adjust_b(bias, delta):
-    """
-    Adjust the bias
-    bias += ALPHA * 1 * delta
-    """
-    return bias + (ALPHA * delta)
-
-
-def calc_delta_output_layer(datapoint, weight, output, label, bias):
-    """
-    Calculate the delta for the output layer
-    delta = err * fi_prime(v)
-    """
-    # get the components of the delta at the output layer
-    err = label - output
-    v = calc_v(datapoint, weight, bias)
-    prime = fi_prime(v)
-
-    return prime * err
-
-
-def fi_prime(v):
-    """
-    Return the value of the activation function's derivative
-    """
-
-    # calc fi
-    f = fi(v)
-    # fi * 1 - fi
-    return f * (1 - f)
 
 
 def show_to_layer(inputs, weights, biases):
@@ -324,7 +273,7 @@ def show_to_layer(inputs, weights, biases):
     next_layer_input = np.empty(num_neurons)
     # go through each neuron in this layer
     for j, weights in enumerate(w1):
-            # v = wTx + b
+        # v = wTx + b
         v = calc_v(inputs, weights, b1[j])
         # output is the activation function
         output = fi(v)
@@ -333,13 +282,6 @@ def show_to_layer(inputs, weights, biases):
     # return the output of this layer
     return next_layer_input
 
-
-def calc_v(inputs, weights, bias):
-    """
-    Calculate v, the input vector
-    v = wTp + b
-    """
-    return np.dot(inputs, weights) + bias
 
 
 if __name__ == "__main__":
