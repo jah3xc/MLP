@@ -134,7 +134,6 @@ def getInputArgs():
     return num_dim, num_hidden, num_output, partA, partB
 
 
-
 def run(training_data, desired_output, w1, w2, b1, b2):
     """
     Run the algorithm with the given parameters
@@ -263,10 +262,6 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     return w1, w2, b1, b2
 
 
-
-
-
-
 def show_to_layer(inputs, weights, biases):
     """
     Take in the input, weights, and bias and show an input
@@ -290,7 +285,6 @@ def show_to_layer(inputs, weights, biases):
         next_layer_input[j] = output
     # return the output of this layer
     return next_layer_input
-
 
 
 if __name__ == "__main__":
