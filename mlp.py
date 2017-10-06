@@ -247,8 +247,11 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, previous_w1, 
         # holder variable
         new_nueron_w = np.empty(len(neuron))
         # calc the delta
-        delta = calc_delta_output_layer(
-            output_layer1, neuron, output, label)
+        v = calc_v(output_layer1, neuron)
+        prime = fi_prime(v)
+        e = label[i] - output[i]
+        delta = e * prime
+
         # get the learning term
         learn_term = ALPHA * delta * output_layer1[i]
 
@@ -346,7 +349,6 @@ def show_to_layer(inputs, weights):
 
     # rename inputs
     w1 = weights
-    training_data = inputs
 
     num_neurons = len(w1) + 1
     # create the array to hold the output of this layer
