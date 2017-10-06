@@ -16,9 +16,19 @@ def init():
     Initialize the program by getting all input data
     """
     # parse command line arguments
-    num_dim, num_hidden, num_output, partA = getInputArgs()
+    num_dim, num_hidden, num_output, partA, partB = getInputArgs()
 
-    if not partA:
+    if partA:
+        input_filename = "data/cross_data.csv"
+        w1_filename = "data/w1.csv"
+        w2_filename = "data/w2.csv"
+        b1_filename = "data/b1.csv"
+        b2_filename = "data/b2.csv"
+
+    elif partB:
+        print("In works!")
+        exit(1)
+    else:
         # read in filenames
         input_filename = input("Enter train data filename: ")
         w1_filename = input(
@@ -28,12 +38,6 @@ def init():
             "Enter bias filename from input to first hidden layer: ")
         b2_filename = input(
             "Enter bias filename from hidden layer to output: ")
-    else:
-        input_filename = "data/cross_data.csv"
-        w1_filename = "data/w1.csv"
-        w2_filename = "data/w2.csv"
-        b1_filename = "data/b1.csv"
-        b2_filename = "data/b2.csv"
 
     # concat the current directory so we can use absolute paths
     input_filename = os.path.join(os.getcwd(), input_filename)
@@ -116,13 +120,18 @@ def getInputArgs():
     # default to part a
     parser.add_argument(
         '-a', '--partA', action="store_true", help="Run part A")
+    # part B
+    parser.add_argument(
+        '-b', '--partB', action="store_true", help="Run part B")
     # parse the arguments
     args = vars(parser.parse_args())
     # store the directories as variables
     num_dim, num_hidden, num_output = args["num_dim"], args["num_hidden"], args["num_output"]
     partA = True if args["partA"] else False
+
+    partB = True if args["partB"] else False
     # return
-    return num_dim, num_hidden, num_output, partA
+    return num_dim, num_hidden, num_output, partA, partB
 
 
 
