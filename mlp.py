@@ -165,8 +165,7 @@ def run(training_data, desired_output, w1, w2, b1, b2):
         # run an epoch
         w1, w2, b1, b2, avg_error = epoch(
             training_data, desired_output, w1, w2, b1, b2)
-
-        if avg_error < TERMINATION_THRESHOLD:
+        if avg_error[0] < TERMINATION_THRESHOLD:
             break
         i += 1
         avg_error = avg_error[0]
@@ -206,7 +205,7 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         first_layer_output = show_to_layer(datapoint, w1, b1)
         # show to output layer
         output = show_to_layer(first_layer_output, w2, b2)
-        # error
+#-----------------------------INCORRECT - have to sum sq errr---notjust first dim        # error
         er = (desired_output[i] - output) ** 2
         avg_error += er
         # backpropoate
@@ -220,12 +219,18 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
     avg_error = avg_error / (2. * len(training_data))
     return w1, w2, b1, b2, avg_error
 
+def fix_label(output, label):
+    o = np.empty(len(output))
+    for i, val in enumerate(output):
+        o[i] = label[i] if i < len(label) else 0
+    return o
 
 def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previous_w1, previous_w2):
     """
     Backpropagate the error
     w(k+1) = w(k) + B(w(k) - w(k-1)) + A(delta)(output)
     """
+    label = fix_label(output, label)
     # output layer
     output_deltas = np.empty(len(w2))
     w2_new = np.empty([len(w2), len(w2[0])])
