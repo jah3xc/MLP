@@ -76,13 +76,11 @@ def init():
             train_data, labels, w1, w2, b1, b2)
         print_results(w1_new, w2_new, b1_new, b2_new, avg_error_energy)
 
-        input("Press [Enter] to continue...")
+        input("\n\nPress [Enter] to continue...\n")
 
         # run the entire algorithm for the next part of part A
         error_per_epoch = run(train_data, labels, w1, w2, b1, b2)
-
-        graph_error_per_epoch(error_per_epoch)
-        graph_data_with_solution(train_data, labels, w1, w2, b1, b2)
+        graph_init(error_per_epoch, train_data, labels, w1, w2, b1, b2)
 
     else:
         # run the entire algorithm
