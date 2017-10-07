@@ -5,6 +5,8 @@ import pandas as pd
 import argparse
 import os
 from pprint import pprint
+from random import random
+import math
 # my files
 from graph import *
 from calculations import *
@@ -74,6 +76,8 @@ def init():
             train_data, labels, w1, w2, b1, b2)
         print_results(w1_new, w2_new, b1_new, b2_new, avg_error_energy)
 
+        input("Press [Enter] to continue...")
+
         # run the entire algorithm for the next part of part A
         error_per_epoch = run(train_data, labels, w1, w2, b1, b2)
 
@@ -142,6 +146,8 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     i = 0
     prev_error = 1
     while True:
+        # randomize data
+        training_data, desired_output = randomize_data(training_data, desired_output)
         # run an epoch
         w1, w2, b1, b2, avg_error = epoch(
             training_data, desired_output, w1, w2, b1, b2)
@@ -163,6 +169,15 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     print_results(w1, w2, b1, b2, avg_error)
     return error
 
+def randomize_data(a, b):
+    shuffled_a = np.empty(a.shape, dtype=a.dtype)
+    shuffled_b = np.empty(b.shape, dtype=b.dtype)
+    permutation = np.random.permutation(len(a))
+    for old_index, new_index in enumerate(permutation):
+        shuffled_a[new_index] = a[old_index]
+        shuffled_b[new_index] = b[old_index]
+    return shuffled_a, shuffled_b
+    
 
 def epoch(training_data, desired_output, w1, w2, b1, b2):
     """
