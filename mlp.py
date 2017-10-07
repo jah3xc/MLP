@@ -19,6 +19,9 @@ def init():
     """
     # parse command line arguments
     num_dim, num_hidden, num_output, partA, partB = getInputArgs()
+    if partA and partB:
+        print("Error! You cannot run both part A and B!")
+        exit(1)
 
     if partA:
         input_filename = "data/cross_data.csv"
@@ -26,11 +29,25 @@ def init():
         w2_filename = "data/w2.csv"
         b1_filename = "data/b1.csv"
         b2_filename = "data/b2.csv"
-
+        num_dim, num_hidden, num_output = 2, 10, 1
+        input_file = pd.read_csv(input_filename, header=None)
+        train_data = input_file.iloc[:, :-1]
+        labels = input_file.iloc[:, -1:]
     elif partB:
-        print("In works!")
-        exit(1)
+        all_data = pd.read_csv("data/Two_Class_FourDGaussians500.txt", sep="  ", header=None, engine='python')
+        num_dim, num_hidden, num_output = 4, 3, 2
+
+        train_and_validation = all_data.iloc[:,:-1]
+        labels = all_data.iloc[:, -1:]
+        train_data = train_and_validation.iloc[100:,] 
+        validation_data = train_and_validation.iloc[:100,:]
+
+        w1_filename = "data/partB_w1.csv"
+        w2_filename = "data/partB_w2.csv"
+        b1_filename = "data/partB_b1.csv"
+        b2_filename = "data/partB_b2.csv"
     else:
+        
         # read in filenames
         input_filename = input("Enter train data filename: ")
         w1_filename = input(
@@ -41,18 +58,18 @@ def init():
         b2_filename = input(
             "Enter bias filename from hidden layer to output: ")
 
-    # concat the current directory so we can use absolute paths
-    input_filename = os.path.join(os.getcwd(), input_filename)
-    w1_filename = os.path.join(os.getcwd(), w1_filename)
-    w2_filename = os.path.join(os.getcwd(), w2_filename)
-    b1_filename = os.path.join(os.getcwd(), b1_filename)
-    b2_filename = os.path.join(os.getcwd(), b2_filename)
-
-    # try to actually get the data
-    try:
+        # concat the current directory so we can use absolute paths
+        input_filename = os.path.join(os.getcwd(), input_filename)
+        w1_filename = os.path.join(os.getcwd(), w1_filename)
+        w2_filename = os.path.join(os.getcwd(), w2_filename)
+        b1_filename = os.path.join(os.getcwd(), b1_filename)
+        b2_filename = os.path.join(os.getcwd(), b2_filename)
         input_file = pd.read_csv(input_filename, header=None)
         train_data = input_file.iloc[:, :-1]
         labels = input_file.iloc[:, -1:]
+
+    # try to actually get the data
+    try:
         w1 = pd.read_csv(w1_filename, header=None)
         b1 = pd.read_csv(b1_filename, header=None)
 
@@ -81,7 +98,6 @@ def init():
         # run the entire algorithm for the next part of part A
         error_per_epoch = run(train_data, labels, w1, w2, b1, b2)
         graph_init(error_per_epoch, train_data, labels, w1, w2, b1, b2)
-
     else:
         # run the entire algorithm
         run(train_data, labels, w1, w2, b1, b2)
@@ -210,7 +226,6 @@ def backpropagate(datapoint, output, output_layer1, label, w1, w2, b1, b2, previ
     Backpropagate the error
     w(k+1) = w(k) + B(w(k) - w(k-1)) + A(delta)(output)
     """
-
     # output layer
     output_deltas = np.empty(len(w2))
     w2_new = np.empty([len(w2), len(w2[0])])
