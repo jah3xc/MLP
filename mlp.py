@@ -50,6 +50,7 @@ def init():
             labels.iloc[:100, :], labels.iloc[500:600, :]])
         validation_labels = label_2D(validation_labels)
 
+        validation_data = validation_data.values
         w1_filename = "data/partB_w1.csv"
         w2_filename = "data/partB_w2.csv"
         b1_filename = "data/partB_b1.csv"
@@ -126,6 +127,7 @@ def validate(validation_data, validation_labels, w1, w2, b1, b2):
     for i, datapoint in enumerate(validation_data):
         hidden = show_to_layer(datapoint, w1, b1)
         output = show_to_layer(hidden, w2, b2)
+        output = np.around(output)
         if np.array_equal(validation_labels[i], output):
             num_correct += 1
 
