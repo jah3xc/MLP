@@ -34,20 +34,21 @@ def init():
         train_data = input_file.iloc[:, :-1]
         labels = input_file.iloc[:, -1:]
     elif partB:
-        all_data = pd.read_csv("data/Two_Class_FourDGaussians500.txt", sep="  ", header=None, engine='python')
+        all_data = pd.read_csv(
+            "data/Two_Class_FourDGaussians500.txt", sep="  ", header=None, engine='python')
         num_dim, num_hidden, num_output = 4, 3, 2
 
-        train_and_validation = all_data.iloc[:,:-1]
+        train_and_validation = all_data.iloc[:, :-1]
         labels = all_data.iloc[:, -1:]
-        train_data = train_and_validation.iloc[100:,] 
-        validation_data = train_and_validation.iloc[:100,:]
+        train_data = train_and_validation.iloc[100:, ]
+        validation_data = train_and_validation.iloc[:100, :]
 
         w1_filename = "data/partB_w1.csv"
         w2_filename = "data/partB_w2.csv"
         b1_filename = "data/partB_b1.csv"
         b2_filename = "data/partB_b2.csv"
     else:
-        
+
         # read in filenames
         input_filename = input("Enter train data filename: ")
         w1_filename = input(
@@ -81,7 +82,7 @@ def init():
 
     # convert everythine to NumPy arrays
     train_data = train_data.values
-    labels = labels.values
+    labels = labels.values if not partB else label_2D(labels)
     w1 = w1.values
     w2 = w2.values
     b1 = b1.values.flatten()
@@ -101,6 +102,17 @@ def init():
     else:
         # run the entire algorithm
         run(train_data, labels, w1, w2, b1, b2)
+
+
+def label_2D(labels):
+    """
+    Take in labels of 1 and 2 and turn them into a 2D vector of (1,0) and (0,1)
+    """
+    new_labels = np.empty([len(labels), 2])
+    for current_label, new_label in zip(labels, new_labels):
+        new_label = [0, 1] if current_label == 0 else [1, 0]
+
+    return new_labels
 
 
 def print_results(w1, w2, b1, b2, avg_error_energy):
@@ -161,7 +173,8 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     prev_error = 1
     while True:
         # randomize data
-        training_data, desired_output = randomize_data(training_data, desired_output)
+        training_data, desired_output = randomize_data(
+            training_data, desired_output)
         # run an epoch
         w1, w2, b1, b2, avg_error = epoch(
             training_data, desired_output, w1, w2, b1, b2)
@@ -183,6 +196,7 @@ def run(training_data, desired_output, w1, w2, b1, b2):
     print_results(w1, w2, b1, b2, avg_error)
     return error
 
+
 def randomize_data(a, b):
     shuffled_a = np.empty(a.shape, dtype=a.dtype)
     shuffled_b = np.empty(b.shape, dtype=b.dtype)
@@ -191,7 +205,7 @@ def randomize_data(a, b):
         shuffled_a[new_index] = a[old_index]
         shuffled_b[new_index] = b[old_index]
     return shuffled_a, shuffled_b
-    
+
 
 def epoch(training_data, desired_output, w1, w2, b1, b2):
     """
