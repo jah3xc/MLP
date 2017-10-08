@@ -1,4 +1,10 @@
-.vscode/
+.vscode/*
 .vscode
 .idea/
 __pycache__/
+.vs/slnx.sqlite
+.vs/ProjectSettings.json
+.vs/tasks.vs.json
+.vs/VSWorkspaceState.json
+.vs/config/applicationhost.config
+.vs/MLP/v15/.suo
