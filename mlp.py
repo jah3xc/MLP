@@ -40,8 +40,15 @@ def init():
 
         train_and_validation = all_data.iloc[:, :-1]
         labels = all_data.iloc[:, -1:]
-        train_data = train_and_validation.iloc[100:, ]
-        validation_data = train_and_validation.iloc[:100, :]
+
+        train_data = pd.concat([
+            train_and_validation.iloc[100:500, :], train_and_validation.iloc[600:, :]])
+        labels = pd.concat([labels.iloc[100:500, :], labels.iloc[600:, :]])
+        validation_data = pd.concat([
+            train_and_validation.iloc[:100, :], train_and_validation.iloc[500:600, :]])
+        validation_labels = pd.concat([
+            labels.iloc[:100, :], labels.iloc[500:600, :]])
+        validation_labels = label_2D(validation_labels)
 
         w1_filename = "data/partB_w1.csv"
         w2_filename = "data/partB_w2.csv"
@@ -94,14 +101,36 @@ def init():
             train_data, labels, w1, w2, b1, b2)
         print_results(w1_new, w2_new, b1_new, b2_new, avg_error_energy)
 
-        input("\n\nPress [Enter] to continue...\n")
+        input("\n\nPress [Enter] to train network...\n")
 
         # run the entire algorithm for the next part of part A
-        w1, w2, b1, b2, error_per_epoch = run(train_data, labels, w1, w2, b1, b2)
+        w1, w2, b1, b2, error_per_epoch = run(
+            train_data, labels, w1, w2, b1, b2)
         graph_init(error_per_epoch, train_data, labels, w1, w2, b1, b2)
+    elif partB:
+        w1, w2, b1, b2, error = run(train_data, labels, w1, w2, b1, b2)
+        input("\n\nPress [Enter] to test network...\n")
+        print("Validating Data...")
+        accuracy = validate(validation_data, validation_labels, w1, w2, b1, b2)
+        print("Accuracy:  {}".format(accuracy))
     else:
         # run the entire algorithm
         run(train_data, labels, w1, w2, b1, b2)
+
+
+def validate(validation_data, validation_labels, w1, w2, b1, b2):
+    """
+    Validate with validation data
+    """
+    num_correct = 0
+    for i, datapoint in enumerate(validation_data):
+        hidden = show_to_layer(datapoint, w1, b1)
+        output = show_to_layer(hidden, w2, b2)
+        if np.array_equal(validation_labels[i], output):
+            num_correct += 1
+
+    a = float(num_correct) / float(len(validation_data))
+    return a
 
 
 def label_2D(labels):
@@ -323,7 +352,7 @@ def show_to_layer(inputs, weights, biases):
         # v = wTx + b
         v = np.dot(inputs, weights) + b1[j]
         # output is the activation function
-        output = 1 / (1+ math.e**(-v))
+        output = 1 / (1 + math.e**(-v))
         # put in the array
         next_layer_input[j] = output
     # return the output of this layer
