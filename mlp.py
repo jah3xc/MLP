@@ -108,10 +108,11 @@ def label_2D(labels):
     """
     Take in labels of 1 and 2 and turn them into a 2D vector of (1,0) and (0,1)
     """
+    labels = labels.values.flatten()
     new_labels = np.empty([len(labels), 2])
-    for current_label, new_label in zip(labels, new_labels):
-        new_label = [0, 1] if current_label == 0 else [1, 0]
-
+    for i, l in enumerate(labels):
+        new_labels[i] = np.array(
+            [0, 1]) if l == 0 else np.array([1, 0])
     return new_labels
 
 
