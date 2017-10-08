@@ -153,9 +153,9 @@ def print_results(w1, w2, b1, b2, avg_error_energy):
     """
     print("----------------------\n\t\tW1\n----------------------")
     pprint(np.around(w1, decimals=4).tolist())
-    print("----------------------\n\t\tB1\n----------------------")
-    pprint(np.around(w2, decimals=4).tolist(), width=1)
     print("----------------------\n\t\tW2\n----------------------")
+    pprint(np.around(w2, decimals=4).tolist(), width=1)
+    print("----------------------\n\t\tB1\n----------------------")
     pprint(np.around(b1, decimals=4).tolist(), width=1)
     print("----------------------\n\t\tB2\n----------------------")
     pprint(np.around(b2, decimals=4).tolist(), width=1)
