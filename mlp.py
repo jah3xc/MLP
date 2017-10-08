@@ -97,7 +97,7 @@ def init():
         input("\n\nPress [Enter] to continue...\n")
 
         # run the entire algorithm for the next part of part A
-        error_per_epoch = run(train_data, labels, w1, w2, b1, b2)
+        w1, w2, b1, b2, error_per_epoch = run(train_data, labels, w1, w2, b1, b2)
         graph_init(error_per_epoch, train_data, labels, w1, w2, b1, b2)
     else:
         # run the entire algorithm
@@ -194,7 +194,7 @@ def run(training_data, desired_output, w1, w2, b1, b2):
         prev_error = avg_error
 
     print_results(w1, w2, b1, b2, avg_error)
-    return error
+    return w1, w2, b1, b2, error
 
 
 def randomize_data(a, b):
@@ -321,9 +321,9 @@ def show_to_layer(inputs, weights, biases):
     # go through each neuron in this layer
     for j, weights in enumerate(w1):
         # v = wTx + b
-        v = calc_v(inputs, weights, b1[j])
+        v = np.dot(inputs, weights) + b1[j]
         # output is the activation function
-        output = fi(v)
+        output = 1 / (1+ math.e**(-v))
         # put in the array
         next_layer_input[j] = output
     # return the output of this layer
