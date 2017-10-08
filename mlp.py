@@ -129,7 +129,7 @@ def print_results(w1, w2, b1, b2, avg_error_energy):
     pprint(np.around(b2, decimals=4).tolist(), width=1)
     print(
         "----------------------\n\t\tERROR\n----------------------\nAverage Error Energy: {:10.4f}".format(
-            avg_error_energy[0]))
+            avg_error_energy))
 
 
 def getInputArgs():
@@ -182,7 +182,6 @@ def run(training_data, desired_output, w1, w2, b1, b2):
         if avg_error < TERMINATION_THRESHOLD:
             break
         i += 1
-        avg_error = avg_error[0]
         error.append(avg_error)
         diff = prev_error - avg_error
         diff = diff / prev_error * 100
@@ -221,7 +220,8 @@ def epoch(training_data, desired_output, w1, w2, b1, b2):
         # show to output layer
         output = show_to_layer(first_layer_output, w2, b2)
         # error
-        er = (desired_output[i] - output) ** 2
+        er = calc_error(output, desired_output[i])
+
         avg_error += er
         # backpropoate
         next_w1, next_w2, next_b1, next_b2 = backpropagate(datapoint,

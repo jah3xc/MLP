@@ -39,3 +39,14 @@ def fi(v):
     denom = 1 + math.e ** (-1 * v)
     val = 1 / denom
     return val
+
+
+def calc_error(output, desired_output):
+    """
+    Calculate the error at the output layer
+    """
+    er = 0
+    for y, d in zip(output, desired_output):
+        er += (y - d)**2
+
+    return er
