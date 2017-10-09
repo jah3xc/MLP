@@ -51,4 +51,4 @@ def calc_error(output, desired_output):
         # add this error to total error
         er += (y - d)**2
 
-    return er
+    return float(er) / 2.
