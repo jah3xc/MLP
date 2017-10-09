@@ -1,7 +1,5 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from mlp import show_to_layer
-from multiprocessing import Pool
 import os
 
 
