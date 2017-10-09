@@ -46,7 +46,9 @@ def calc_error(output, desired_output):
     Calculate the error at the output layer
     """
     er = 0
+    # iterate throuh all output neurons
     for y, d in zip(output, desired_output):
+        # add this error to total error
         er += (y - d)**2
 
     return er
