@@ -73,5 +73,10 @@ def graph_data_with_solution(train_data, labels, w1, w2, b1, b2):
         # plot the data, altering color based on label
         plt.scatter(x, y, c=("red" if label == 0 else "blue"),
                     alpha=1, marker="+")
+    # set properties
+    plt.title("Data With Decision Boundary")
+    plt.xlabel("x1")
+    plt.ylabel("x2")
+    plt.legend()
     # show the graph
     plt.show()
