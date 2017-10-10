@@ -1,6 +1,8 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+import math
+from mlp import show_to_layer
 
 
 def graph_init(error_per_epoch, train_data, labels, w1, w2, b1, b2):
@@ -41,6 +43,31 @@ def graph_data_with_solution(train_data, labels, w1, w2, b1, b2):
     """
     Graph the data
     """
+    # find the largest x value and largest y value
+    biggest_x = -1
+    biggest_y = -1
+    for x, y in train_data:
+        if x > biggest_x:
+            biggest_x = x
+        if y > biggest_y:
+            biggest_y = y
+    # create arrays going from - biggest x/y to + biggest x/y with interval .1
+    x_array = np.arange(-biggest_x, biggest_x, .1)
+    y_array = np.arange(-biggest_y, biggest_y, .1)
+    # iterate through the arrays
+    for i in x_array:
+        for j in x_array:
+            # create a datapoint
+            datapoint = np.array([i, j])
+            # show to hidden layer
+            hidden = show_to_layer(datapoint, w1, b1)
+            # show to output layer
+            output = show_to_layer(hidden, w2, b2)[0]
+            # values aren't exactly 1 and 0, need to round
+            output = np.around(output)
+            # plot the point
+            plt.scatter(i, j, c="yellow" if output == 1 else "green")
+
     for (x, y), label in zip(train_data, labels):
         # plot the data, altering color based on label
         plt.scatter(x, y, c=("red" if label == 0 else "blue"))
