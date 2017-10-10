@@ -66,10 +66,12 @@ def graph_data_with_solution(train_data, labels, w1, w2, b1, b2):
             # values aren't exactly 1 and 0, need to round
             output = np.around(output)
             # plot the point
-            plt.scatter(i, j, c="yellow" if output == 1 else "green")
+            plt.scatter(i, j, c="red" if output ==
+                        0 else "blue", alpha=.2)
 
     for (x, y), label in zip(train_data, labels):
         # plot the data, altering color based on label
-        plt.scatter(x, y, c=("red" if label == 0 else "blue"))
+        plt.scatter(x, y, c=("red" if label == 0 else "blue"),
+                    alpha=1, marker="+")
     # show the graph
     plt.show()
